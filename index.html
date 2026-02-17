@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Kasir</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F2F2F7;
+      --surface: #FFFFFF;
+      --surface-2: #F9F9FB;
+      --primary: #007AFF;
+      --primary-light: #E8F2FF;
+      --primary-dark: #0056CC;
+      --text-primary: #1C1C1E;
+      --text-secondary: #6E6E73;
+      --text-tertiary: #AEAEB2;
+      --separator: #E5E5EA;
+      --green: #34C759;
+      --red: #FF3B30;
+      --orange: #FF9500;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    .nav-bar {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      padding: 16px 28px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.4px;
+    }
+
+    .nav-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-top: 1px;
+    }
+
+    /* MAIN */
+    .main {
+      padding: 28px;
+      max-width: 1100px;
+      margin: 0 auto;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* STATS ROW */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: 22px 20px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-card .icon-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+
+    .stat-card .value {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.6px;
+      color: var(--text-primary);
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .icon-blue  { background: var(--primary-light); color: var(--primary); }
+    .icon-green { background: #E8F9ED; color: var(--green); }
+    .icon-orange{ background: #FFF4E5; color: var(--orange); }
+
+    /* SECTION HEADER */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    /* BUTTONS */
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 11px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+      box-shadow: 0 2px 8px rgba(0,122,255,0.28);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0,122,255,0.36);
+    }
+
+    .btn-primary:active { transform: scale(0.97); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius-sm);
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.18s;
+    }
+
+    .btn-ghost:hover {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    /* ANTRIAN CARDS */
+    .antrian-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .order-card {
+      background: var(--surface);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border-left: 3px solid transparent;
+      animation: slideIn 0.3s ease both;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .order-card:hover {
+      transform: translateX(3px);
+      box-shadow: var(--shadow-md);
+      border-left-color: var(--primary);
+    }
+
+    .order-info { flex: 1; }
+
+    .order-customer {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .order-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .order-meta span {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .order-total {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .badge-waiting  { background: #FFF4E5; color: var(--orange); }
+    .badge-done     { background: #E8F9ED; color: var(--green); }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 14px;
+      opacity: 0.5;
+    }
+
+    .empty-state p {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav-bar">
+    <div>
+      <div class="nav-title">Dashboard</div>
+      <div class="nav-subtitle" id="tanggalNav">Memuat tanggal...</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <a href="history/rekap.html" class="btn-ghost">
+        📊 Rekapitulasi
+      </a>
+      <a href="pesanan/orderan.html" class="btn-primary">
+        + Pesanan Baru
+      </a>
+    </div>
+  </nav>
+
+  <div class="main">
+
+    <!-- STATS -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="icon-dot icon-blue">🧾</div>
+        <div class="value" id="statTransaksi">0</div>
+        <div class="label">Transaksi Hari Ini</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-dot icon-green">💰</div>
+        <div class="value" id="statOmzet">Rp 0</div>
+        <div class="label">Total Omzet</div>
+      </div>
+      <div class="stat-card">
+        <div class="icon-dot icon-orange">⏳</div>
+        <div class="value" id="statAntrian">0</div>
+        <div class="label">Antrian Aktif</div>
+      </div>
+    </div>
+
+    <!-- ANTRIAN -->
+    <div class="section-header">
+      <div class="section-title">Antrian Pesanan</div>
+    </div>
+
+    <div id="antrian"></div>
+
+  </div>
+
+<script>
+  // Tanggal di nav
+  const opts = { weekday:'long', day:'numeric', month:'long', year:'numeric' };
+  document.getElementById('tanggalNav').textContent = new Date().toLocaleDateString('id-ID', opts);
+
+  // ===============================
+  // FORMAT RUPIAH (dari dashboard.js)
+  // ===============================
+  function formatRupiah(angka) {
+    return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
+
+  // ===============================
+  // LOAD ANTRIAN (dari dashboard.js)
+  // ===============================
+  function loadAntrian() {
+    const container = document.getElementById('antrian');
+    container.innerHTML = '';
+
+    const data = JSON.parse(localStorage.getItem('pesanan')) || [];
+
+    // Update stat cards
+    const totalOmzet = data.reduce((s, p) => s + (p.total || 0), 0);
+    document.getElementById('statTransaksi').textContent = data.length;
+    document.getElementById('statOmzet').textContent     = formatRupiah(totalOmzet);
+    document.getElementById('statAntrian').textContent   = data.length;
+
+    if (data.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="icon">📋</div>
+          <p>Belum ada pesanan</p>
+        </div>`;
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'antrian-grid';
+
+    data.forEach((order, index) => {
+      let itemsHTML = (order.items || []).map(item =>
+        `<span>${item.nama} x${item.qty}</span>`
+      ).join(' &nbsp;·&nbsp; ');
+
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.style.animationDelay = (index * 0.05) + 's';
+
+      card.innerHTML = `
+        <div>
+          <div style="font-size:11px;color:var(--text-tertiary);font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px;">#${String(index + 1).padStart(3, '0')}</div>
+          <div class="order-customer">${order.customer || 'Customer'}</div>
+          <div class="order-meta">
+            <span>👤 ${order.kasir}</span>
+            <span style="color:var(--text-tertiary)">·</span>
+            <span style="color:var(--text-tertiary)">${itemsHTML}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+          <div class="order-total">${formatRupiah(order.total)}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge ${order.metode === 'Cash' ? 'badge-waiting">💵 Cash' : 'badge-done">📲 QRIS'}</span>
+            <button
+              onclick="selesai(${index})"
+              style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;"
+              onmouseover="this.style.opacity='0.85'"
+              onmouseout="this.style.opacity='1'">
+              ✓ Selesai
+            </button>
+          </div>
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+  }
+
+  // ===============================
+  // SELESAI PESANAN (dari dashboard.js)
+  // ===============================
+  function selesai(index) {
+    let data = JSON.parse(localStorage.getItem('pesanan')) || [];
+    data.splice(index, 1);
+    localStorage.setItem('pesanan', JSON.stringify(data));
+    loadAntrian();
+  }
+
+  // LOAD SAAT HALAMAN DIBUKA
+  loadAntrian();
+</script>
+</body>
+</html>
