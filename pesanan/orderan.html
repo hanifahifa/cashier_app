@@ -690,7 +690,8 @@
       metode: selectedMetode,
       items: cart,
       total: cart.reduce((s, i) => s + i.harga * i.qty, 0),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      status: 'pending' // <--- TAMBAHKAN INI AGAR STATUS AWALNYA PENDING
     };
 
     const data = JSON.parse(localStorage.getItem('pesanan')) || [];

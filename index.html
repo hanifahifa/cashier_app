@@ -352,21 +352,27 @@
   }
 
   // ===============================
-  // LOAD ANTRIAN (dari dashboard.js)
+  // LOAD ANTRIAN
   // ===============================
   function loadAntrian() {
     const container = document.getElementById('antrian');
     container.innerHTML = '';
 
-    const data = JSON.parse(localStorage.getItem('pesanan')) || [];
+    const allData = JSON.parse(localStorage.getItem('pesanan')) || [];
+    
+    // 1. Filter hanya pesanan yang masih "pending" untuk antrian
+    const pendingData = allData.filter(p => p.status === 'pending');
 
-    // Update stat cards
-    const totalOmzet = data.reduce((s, p) => s + (p.total || 0), 0);
-    document.getElementById('statTransaksi').textContent = data.length;
-    document.getElementById('statOmzet').textContent     = formatRupiah(totalOmzet);
-    document.getElementById('statAntrian').textContent   = data.length;
+    // 2. Hitung statistik hari ini (menghitung SEMUA pesanan hari ini, baik pending/selesai)
+    const today = new Date().toLocaleDateString('id-ID');
+    const dataHariIni = allData.filter(p => new Date(p.timestamp).toLocaleDateString('id-ID') === today);
+    const totalOmzetHariIni = dataHariIni.reduce((s, p) => s + (p.total || 0), 0);
 
-    if (data.length === 0) {
+    document.getElementById('statTransaksi').textContent = dataHariIni.length;
+    document.getElementById('statOmzet').textContent     = formatRupiah(totalOmzetHariIni);
+    document.getElementById('statAntrian').textContent   = pendingData.length;
+
+    if (pendingData.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
           <div class="icon">📋</div>
@@ -378,7 +384,8 @@
     const grid = document.createElement('div');
     grid.className = 'antrian-grid';
 
-    data.forEach((order, index) => {
+    // Looping menggunakan data yang sudah di-filter (pendingData)
+    pendingData.forEach((order, index) => {
       let itemsHTML = (order.items || []).map(item =>
         `<span>${item.nama} x${item.qty}</span>`
       ).join(' &nbsp;·&nbsp; ');
@@ -401,12 +408,12 @@
           <div class="order-total">${formatRupiah(order.total)}</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="badge ${order.metode === 'Cash' ? 'badge-waiting">💵 Cash' : 'badge-done">📲 QRIS'}</span>
-            <button
-              onclick="selesai(${index})"
-              style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;"
+           
+           <button onclick="selesai('${order.timestamp}')"
+              style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;"
               onmouseover="this.style.opacity='0.85'"
               onmouseout="this.style.opacity='1'">
-              ✓ Selesai
+              Tandai Selesai
             </button>
           </div>
         </div>
@@ -419,14 +426,26 @@
   }
 
   // ===============================
-  // SELESAI PESANAN (dari dashboard.js)
+  // SELESAI PESANAN
   // ===============================
-  function selesai(index) {
-    let data = JSON.parse(localStorage.getItem('pesanan')) || [];
-    data.splice(index, 1);
-    localStorage.setItem('pesanan', JSON.stringify(data));
+  function selesai(timestampId) {
+    let allData = JSON.parse(localStorage.getItem('pesanan')) || [];
+    
+    // Cari pesanan berdasarkan timestamp, lalu ubah statusnya jadi 'selesai'
+    const index = allData.findIndex(order => order.timestamp === timestampId);
+    if (index !== -1) {
+      allData[index].status = 'selesai';
+      localStorage.setItem('pesanan', JSON.stringify(allData));
+    }
+    
+    // Render ulang dashboard (pesanan akan hilang karena loadAntrian hanya menampilkan yang pending)
     loadAntrian();
   }
+
+  // ===============================
+  // SELESAI PESANAN (dari dashboard.js)
+  // ===============================
+  
 
   // LOAD SAAT HALAMAN DIBUKA
   loadAntrian();

@@ -1,54 +1,48 @@
-// ===============================
-// FORMAT RUPIAH
-// ===============================
 function formatRupiah(angka) {
   return 'Rp ' + angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
-// ===============================
-// LOAD ANTRIAN (HANYA PENDING)
-// ===============================
 function loadAntrian() {
   const container = document.getElementById('antrian');
   container.innerHTML = '';
 
   const data = JSON.parse(localStorage.getItem('pesanan')) || [];
 
-  // filter hanya yang pending
-  const pendingOrders = data.filter(o => o.status === 'pending');
-
-  if (pendingOrders.length === 0) {
-    container.innerHTML = '<p class="text-muted">Belum ada pesanan</p>';
+  if (data.length === 0) {
+    container.innerHTML = `<p>Belum ada pesanan</p>`;
     return;
   }
 
-  pendingOrders.forEach((order) => {
+  data.forEach(order => {
     const card = document.createElement('div');
-    card.className = 'card mb-3';
+    card.className = 'order-card';
 
-    let itemsHTML = '';
-    order.items.forEach(item => {
-      itemsHTML += `${item.nama} x${item.qty}<br>`;
-    });
+    const items = order.items.map(i => `${i.nama} x${i.qty}`).join(', ');
+
+    const isDone = order.status === 'done';
 
     card.innerHTML = `
-      <div class="card-body">
-        <div class="d-flex justify-content-between fw-bold mb-2">
-          <span>${order.kasir} - ${order.customer || 'Customer'}</span>
-          <span>QRIS</span>
-        </div>
+      <div>
+        <strong>${order.customer || 'Customer'}</strong><br>
+        <small>${order.kasir} · ${items}</small>
+      </div>
 
-        <div class="mb-2">
-          ${itemsHTML}
-        </div>
+      <div style="text-align:right">
+        <div>${formatRupiah(order.total)}</div>
 
-        <div class="d-flex justify-content-between align-items-center">
-          <strong>${formatRupiah(order.total)}</strong>
-          <button class="btn btn-success btn-sm"
-            onclick="selesai('${order.timestamp}')">
-            ✔ Selesai
-          </button>
-        </div>
+        <button
+          onclick="toggleStatus('${order.timestamp}')"
+          style="
+            margin-top:6px;
+            background:${isDone ? '#34C759' : '#007AFF'};
+            color:#fff;
+            border:none;
+            padding:6px 14px;
+            border-radius:8px;
+            font-weight:700;
+            cursor:pointer">
+          ${isDone ? 'Selesai' : 'Pending'}
+        </button>
       </div>
     `;
 
@@ -56,23 +50,17 @@ function loadAntrian() {
   });
 }
 
-// ===============================
-// SELESAI PESANAN (UBAH STATUS)
-// ===============================
-function selesai(timestamp) {
-  let data = JSON.parse(localStorage.getItem('pesanan')) || [];
+function toggleStatus(timestamp) {
+  const data = JSON.parse(localStorage.getItem('pesanan')) || [];
+  const idx = data.findIndex(o => o.timestamp === timestamp);
 
-  const index = data.findIndex(o => o.timestamp === timestamp);
-
-  if (index !== -1) {
-    data[index].status = 'done';
+  if (idx !== -1) {
+    data[idx].status =
+      data[idx].status === 'pending' ? 'done' : 'pending';
     localStorage.setItem('pesanan', JSON.stringify(data));
   }
 
   loadAntrian();
 }
 
-// ===============================
-// INIT
-// ===============================
 document.addEventListener('DOMContentLoaded', loadAntrian);
